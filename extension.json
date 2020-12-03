@@ -1,0 +1,8 @@
+{
+    "identifier": "dev.neolith.DjangoTemplates",
+    "name": "Django Templates",
+    "organization": "Neolith",
+    "description": "Syntax highlighting and autocompletion for Django template files.",
+    "version": "1.0",
+    "categories": ["languages"]
+}

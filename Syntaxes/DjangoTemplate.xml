@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<syntax name="django-template">
+    <meta>
+        <name>Django Template</name>
+        <type>markup</type>
+        <preferred-file-extension>html</preferred-file-extension>
+    </meta>
+    
+    <detectors>
+        <!-- This is straight from https://docs.nova.app/syntax-reference/syntaxes/#compound-detectors but seems to override the plain HTML syntax? -->
+        <combo priority="0.7">
+            <extension>html</extension>
+            <match-content>{% [a-zA-Z]</match-content>
+        </combo>
+    </detectors>
+    
+    <indentation>
+        <increase>
+            <expression>(?x)
+                (&lt;(?!\?|(?:area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)\b)
+                ([-_\.A-Za-z0-9]+)(?=\s|&gt;)\b[^&gt;]*&gt;[^&lt;]*$)
+                |(&lt;!--\s*$)
+            </expression>
+        </increase>
+        <decrease>
+            <expression>(?x)
+                ^\s*
+                (&lt;/[-_\.A-Za-z0-9]+\b[^>]*&gt;
+                    |--&gt;
+                )</expression>
+        </decrease>
+    </indentation>
+    
+    <comments>
+        <single>
+            <starts-with>
+                <expression>\{\#</expression>
+            </starts-with>
+            <ends-with>
+                <expression>\#\}</expression>
+            </ends-with>
+        </single>
+        <multiline>
+            <starts-with>
+                <expression>&lt;!--</expression>
+            </starts-with>
+            <ends-with>
+                <expression>--&gt;</expression>
+            </ends-with>
+        </multiline>
+        <multiline>
+            <starts-with>
+                <expression>\{\%\s*comment</expression>
+            </starts-with>
+            <ends-with>
+                <expression>endcomment\s*\%\}</expression>
+            </ends-with>
+        </multiline>
+    </comments>
+    
+    <brackets>
+        <pair open="&lt;" close="&gt;" />
+        <pair open="{%" close="%}" />
+    </brackets>
+    
+    <surrounding-pairs>
+        <pair open="&lt;" close="&gt;" />
+        <pair open="{" close="}" />
+        <pair open="[" close="]" />
+        <pair open="(" close=")" />
+        <pair open="&apos;" close="&apos;" />
+        <pair open="&quot;" close="&quot;" />
+        <pair open="`" close="`" />
+        <pair open="{%" close="%}" />
+    </surrounding-pairs>
+    
+    <scopes>
+        <include syntax="self" collection="comments" />
+        <include syntax="self" collection="blocks" />
+        <include syntax="self" collection="tags" />
+        <include syntax="html" />
+    </scopes>
+    
+    <collections>
+        <collection name="comments">
+            <scope name="django.comment.single">
+                <starts-with>
+                    <expression>\{\#</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>\#\}</expression>
+                </ends-with>
+            </scope>
+            
+            <scope name="django.comment.block">
+                <starts-with>
+                    <expression>\{\%\s*comment</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>endcomment\s*\%\}</expression>
+                </ends-with>
+            </scope>
+        </collection>
+
+        <collection name="tags">
+            <scope name="django.tag">
+                <starts-with>
+                    <expression>\{\%\s*([^\s\%]+)</expression>
+                    <capture number="1" name="django.keyword" />
+                </starts-with>
+                <ends-with>
+                    <expression>\%\}</expression>
+                </ends-with>
+                <subscopes>
+                    <scope name="django.tag.argument.identifier">
+                        <expression>[^\s\%]+</expression>
+                    </scope>
+                </subscopes>
+            </scope>
+        </collection>
+        
+        <collection name="blocks">
+            <scope name="django.tag.block">
+                <symbol type="bookmark">
+                    <context behavior="subtree" />
+                </symbol>
+                <starts-with>
+                    <expression>\{\%\s*(block)\s+([^\s\%]+)\s*\%\}</expression>
+                    <capture number="1" name="django.keyword" />
+                    <capture number="2" name="django.tag.block.identifier.argument.name" />
+                </starts-with>
+                <ends-with>
+                    <expression>\{\%\s*(endblock)(\s+([^\s\%]+))?\s*\%\}</expression>
+                    <capture number="1" name="django.keyword" />
+                    <capture number="2" name="django.block.identifier.argument" />
+                </ends-with>
+                <subscopes>
+                    <include syntax="self" />
+                </subscopes>
+            </scope>
+            
+            <scope name="django.forloop.start">
+                <symbol type="block">
+                    <context behavior="start" />
+                </symbol>
+                <starts-with>
+                    <expression>\{\%\s*(for)\b</expression>
+                    <capture number="1" name="django.keyword" />
+                </starts-with>
+                <ends-with>
+                    <expression>\%\}</expression>
+                </ends-with>
+                <subscopes>
+                    <scope name="django.tag.argument.identifier">
+                        <expression>[^\s\%]+</expression>
+                    </scope>
+                </subscopes>
+            </scope>
+            
+            <scope name="django.forloop.empty">
+                <symbol type="block">
+                    <context behavior="next" />
+                </symbol>
+                <expression>\{\%\s*(empty)\s*\%\}</expression>
+                <capture number="1" name="django.keyword" />
+            </scope>
+            
+            <scope name="django.forloop.end">
+                <symbol type="block">
+                    <context behavior="end" />
+                </symbol>
+                <expression>\{\%\s*(endfor)\s*\%\}</expression>
+                <capture number="1" name="django.keyword" />
+            </scope>
+            
+            <scope name="django.tag.if">
+                <symbol type="block">
+                    <context behavior="start" />
+                </symbol>
+                <starts-with>
+                    <expression>\{\%\s*(if)\b</expression>
+                    <capture number="1" name="django.keyword" />
+                </starts-with>
+                <ends-with>
+                    <expression>\%\}</expression>
+                </ends-with>
+                <subscopes>
+                    <scope name="django.tag.argument.identifier">
+                        <expression>[^\s\%]+</expression>
+                    </scope>
+                </subscopes>
+            </scope>
+            
+            <scope name="django.tag.elif">
+                <symbol type="block">
+                    <context behavior="next" />
+                </symbol>
+                <starts-with>
+                    <expression>\{\%\s*(elif)\b</expression>
+                    <capture number="1" name="django.keyword" />
+                </starts-with>
+                <ends-with>
+                    <expression>\%\}</expression>
+                </ends-with>
+                <subscopes>
+                    <scope name="django.tag.argument.identifier">
+                        <expression>[^\s\%]+</expression>
+                    </scope>
+                </subscopes>
+            </scope>
+            
+            <scope name="django.tag.else">
+                <symbol type="block">
+                    <context behavior="next" />
+                </symbol>
+                <expression>\{\%\s*(else)\s*\%\}</expression>
+                <capture number="1" name="django.keyword" />
+            </scope>
+
+            <scope name="django.tag.endif">
+                <symbol type="block">
+                    <context behavior="end" />
+                </symbol>
+                <expression>\{\%\s*(endif)\s*\%\}</expression>
+                <capture number="1" name="django.keyword" />
+            </scope>
+        </collection>
+    </collections>
+</syntax>
