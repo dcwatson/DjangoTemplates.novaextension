@@ -1,8 +1,11 @@
 {
-    "identifier": "dev.neolith.DjangoTemplates",
+    "identifier": "net.danwatson.DjangoTemplates",
     "name": "Django Templates",
-    "organization": "Neolith",
+    "organization": "Dan Watson",
     "description": "Syntax highlighting and autocompletion for Django template files.",
     "version": "1.0",
-    "categories": ["languages"]
+    "categories": ["languages"],
+    "repository": "https://github.com/dcwatson/DjangoTemplates.novaextension",
+    "bugs": "https://github.com/dcwatson/DjangoTemplates.novaextension/issues",
+    "license": "MIT"
 }
