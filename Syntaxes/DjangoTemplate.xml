@@ -7,11 +7,7 @@
     </meta>
     
     <detectors>
-        <!-- This is straight from https://docs.nova.app/syntax-reference/syntaxes/#compound-detectors but seems to override the plain HTML syntax? -->
-        <combo priority="0.7">
-            <extension>html</extension>
-            <match-content>{% [a-zA-Z]</match-content>
-        </combo>
+        <match-content priority="0.7">\{\% [a-zA-Z]</match-content>
     </detectors>
     
     <indentation>
