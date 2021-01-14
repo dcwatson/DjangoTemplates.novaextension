@@ -56,24 +56,26 @@
     
     <brackets>
         <pair open="&lt;" close="&gt;" />
-        <pair open="{%" close="%}" />
+        <pair open="{" close="}" />
+        <pair open="%" close="%" />
     </brackets>
     
     <surrounding-pairs>
         <pair open="&lt;" close="&gt;" />
         <pair open="{" close="}" />
+        <pair open="%" close="%" />
         <pair open="[" close="]" />
         <pair open="(" close=")" />
         <pair open="&apos;" close="&apos;" />
         <pair open="&quot;" close="&quot;" />
         <pair open="`" close="`" />
-        <pair open="{%" close="%}" />
     </surrounding-pairs>
     
     <scopes>
         <include syntax="self" collection="comments" />
         <include syntax="self" collection="blocks" />
         <include syntax="self" collection="tags" />
+        <include syntax="self" collection="variables" />
         <include syntax="html" />
     </scopes>
     
@@ -99,7 +101,7 @@
         </collection>
 
         <collection name="tags">
-            <scope name="django.tag">
+            <scope name="django.templatetag">
                 <starts-with>
                     <expression>\{\%\s*([^\s\%]+)</expression>
                     <capture number="1" name="django.keyword" />
@@ -108,22 +110,43 @@
                     <expression>\%\}</expression>
                 </ends-with>
                 <subscopes>
-                    <scope name="django.tag.argument.identifier">
+                    <scope name="django.argument.identifier">
                         <expression>[^\s\%]+</expression>
                     </scope>
                 </subscopes>
             </scope>
         </collection>
         
+        <collection name="variables">
+            <scope name="django.variable">
+                <starts-with>
+                    <expression>\{\{</expression>
+                </starts-with>
+                <ends-with>
+                    <expression>\}\}</expression>
+                </ends-with>
+                <subscopes>
+                    <scope name="django.variable.filter">
+                        <expression>(\|)([^\s\%\}\|]+)</expression>
+                        <capture number="1" name="django.filter.operator" />
+                        <capture number="2" name="django.filter.identifier.method" />
+                    </scope>
+                    <scope name="django.variable.name.identifier">
+                        <expression>[^\s\%\}\|]+</expression>
+                    </scope>
+                </subscopes>
+            </scope>
+        </collection>
+        
         <collection name="blocks">
-            <scope name="django.tag.block">
+            <scope name="django.block">
                 <symbol type="bookmark">
                     <context behavior="subtree" />
                 </symbol>
                 <starts-with>
                     <expression>\{\%\s*(block)\s+([^\s\%]+)\s*\%\}</expression>
                     <capture number="1" name="django.keyword" />
-                    <capture number="2" name="django.tag.block.identifier.argument.name" />
+                    <capture number="2" name="django.block.identifier.argument.name" />
                 </starts-with>
                 <ends-with>
                     <expression>\{\%\s*(endblock)(\s+([^\s\%]+))?\s*\%\}</expression>
@@ -147,7 +170,7 @@
                     <expression>\%\}</expression>
                 </ends-with>
                 <subscopes>
-                    <scope name="django.tag.argument.identifier">
+                    <scope name="django.argument.identifier">
                         <expression>[^\s\%]+</expression>
                     </scope>
                 </subscopes>
@@ -169,7 +192,7 @@
                 <capture number="1" name="django.keyword" />
             </scope>
             
-            <scope name="django.tag.if">
+            <scope name="django.if">
                 <symbol type="block">
                     <context behavior="start" />
                 </symbol>
@@ -181,13 +204,13 @@
                     <expression>\%\}</expression>
                 </ends-with>
                 <subscopes>
-                    <scope name="django.tag.argument.identifier">
+                    <scope name="django.argument.identifier">
                         <expression>[^\s\%]+</expression>
                     </scope>
                 </subscopes>
             </scope>
             
-            <scope name="django.tag.elif">
+            <scope name="django.elif">
                 <symbol type="block">
                     <context behavior="next" />
                 </symbol>
@@ -199,13 +222,13 @@
                     <expression>\%\}</expression>
                 </ends-with>
                 <subscopes>
-                    <scope name="django.tag.argument.identifier">
+                    <scope name="django.argument.identifier">
                         <expression>[^\s\%]+</expression>
                     </scope>
                 </subscopes>
             </scope>
             
-            <scope name="django.tag.else">
+            <scope name="django.else">
                 <symbol type="block">
                     <context behavior="next" />
                 </symbol>
@@ -213,7 +236,7 @@
                 <capture number="1" name="django.keyword" />
             </scope>
 
-            <scope name="django.tag.endif">
+            <scope name="django.endif">
                 <symbol type="block">
                     <context behavior="end" />
                 </symbol>
